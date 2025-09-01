@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown题目练习工具</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 800px;
+            padding: 30px;
+            margin: 20px auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .upload-area {
+            border: 2px dashed #3498db;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 8px;
+        }
+        
+        .upload-area:hover {
+            background-color: #e8f4ff;
+            border-color: #2980b9;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            display: inline-block;
+            margin: 10px 5px;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-primary {
+            background-color: #2ecc71;
+        }
+        
+        .btn-primary:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-secondary {
+            background-color: #e74c3c;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #c0392b;
+        }
+        
+        .quiz-container {
+            display: none;
+        }
+        
+        .quiz-card {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .quiz-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .quiz-content {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+        }
+        
+        .answer-content {
+            display: none;
+            font-size: 18px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #2ecc71;
+            margin-top: 15px;
+            white-space: pre-wrap;
+        }
+        
+        .progress {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #7f8c8d;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .file-info {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .success {
+            color: #2ecc71;
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        input[type="number"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            width: 100px;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .settings {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Markdown题目练习工具</h1>
+        
+        <div class="section" id="upload-section">
+            <div class="upload-area" id="drop-area">
+                <div class="upload-icon">📁</div>
+                <p>点击或拖拽Markdown文件到此处上传</p>
+                <input type="file" id="file-input" class="file-input" accept=".md">
+                <button class="btn" id="browse-btn">选择文件</button>
+            </div>
+            <div id="file-info" class="file-info"></div>
+        </div>
+        
+        <div class="section" id="settings-section" style="display: none;">
+            <h2>练习设置</h2>
+            <div class="settings">
+                <label for="exercise-num">题目数量:</label>
+                <input type="number" id="exercise-num" min="1" value="10">
+                <button class="btn btn-primary" id="start-btn">开始练习</button>
+            </div>
+            <p class="file-info" id="quiz-count-info"></p>
+        </div>
+        
+        <div id="error-message" class="error" style="display: none;"></div>
+        <div id="success-message" class="success" style="display: none;"></div>
+        
+        <div class="quiz-container" id="quiz-container">
+            <div class="progress" id="progress">题目 1/10</div>
+            
+            <div class="quiz-card">
+                <h3>问题</h3>
+                <div class="quiz-content" id="quiz-content"></div>
+                
+                <h3>答案</h3>
+                <div class="answer-content" id="answer-content"></div>
+                
+                <div class="controls">
+                    <button class="btn" id="show-answer-btn">显示答案</button>
+                    <button class="btn btn-primary" id="next-btn">下一题</button>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-secondary" id="restart-btn">重新开始</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            const fileInput = document.getElementById('file-input');
+            const browseBtn = document.getElementById('browse-btn');
+            const dropArea = document.getElementById('drop-area');
+            const fileInfo = document.getElementById('file-info');
+            const settingsSection = document.getElementById('settings-section');
+            const exerciseNumInput = document.getElementById('exercise-num');
+            const startBtn = document.getElementById('start-btn');
+            const quizContainer = document.getElementById('quiz-container');
+            const quizContent = document.getElementById('quiz-content');
+            const answerContent = document.getElementById('answer-content');
+            const showAnswerBtn = document.getElementById('show-answer-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const progressText = document.getElementById('progress');
+            const restartBtn = document.getElementById('restart-btn');
+            const errorMessage = document.getElementById('error-message');
+            const successMessage = document.getElementById('success-message');
+            const quizCountInfo = document.getElementById('quiz-count-info');
+            
+            // 全局变量
+            let quizzes = [];
+            let currentQuizIndex = 0;
+            let exerciseQuizzes = [];
+            
+            // 事件监听器
+            browseBtn.addEventListener('click', () => fileInput.click());
+            
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            dropArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropArea.style.backgroundColor = '#e8f4ff';
+            });
+            
+            dropArea.addEventListener('dragleave', () => {
+                dropArea.style.backgroundColor = '';
+            });
+            
+            dropArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropArea.style.backgroundColor = '';
+                
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFileSelect(e);
+                }
+            });
+            
+            startBtn.addEventListener('click', startExercise);
+            showAnswerBtn.addEventListener('click', showAnswer);
+            nextBtn.addEventListener('click', nextQuiz);
+            restartBtn.addEventListener('click', restartApp);
+            
+            // 处理文件选择
+            function handleFileSelect(e) {
+                const file = e.target.files[0];
+                if (!file || !file.name.endsWith('.md')) {
+                    showError('请选择Markdown文件（.md后缀）');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const content = e.target.result;
+                        quizzes = parseMarkdownContent(content);
+                        
+                        if (quizzes.length === 0) {
+                            showError('文件中没有找到有效的题目和答案');
+                            return;
+                        }
+                        
+                        // 显示成功信息和设置区域
+                        showSuccess(`成功加载 ${quizzes.length} 道题目`);
+                        fileInfo.textContent = `已加载文件: ${file.name} (${quizzes.length} 道题目)`;
+                        settingsSection.style.display = 'block';
+                        
+                        // 设置题目数量最大值
+                        exerciseNumInput.max = quizzes.length;
+                        exerciseNumInput.value = Math.min(10, quizzes.length);
+                        quizCountInfo.textContent = `该文件共有 ${quizzes.length} 道题目，最多可选择 ${quizzes.length} 道题`;
+                        
+                    } catch (err) {
+                        console.error(err);
+                        showError('解析文件时出错: ' + err.message);
+                    }
+                };
+                
+                reader.readAsText(file);
+            }
+            
+            // 解析Markdown内容
+            function parseMarkdownContent(content) {
+                const lines = content.split('\n');
+                const result = [];
+                
+                for (const line of lines) {
+                    if (!hasChinese(line)) continue;
+                    
+                    const quiz = parseQuizLine(line);
+                    if (quiz !== -1) {
+                        result.push(quiz);
+                    }
+                }
+                
+                return result;
+            }
+            
+            // 判断是否包含中文
+            function hasChinese(str) {
+                return /[\u4e00-\u9fff]/.test(str);
+            }
+            
+            // 解析题目行
+            function parseQuizLine(line) {
+                // 匹配Markdown表格行格式: | 问题 | 答案 |
+                const pattern = /\|\s*(.*?)\s*\|\s*(.*?)\s*\|/;
+                const match = line.match(pattern);
+                
+                if (match && match.length >= 3) {
+                    return [
+                        processString(match[1]),
+                        processString(match[2])
+                    ];
+                }
+                
+                return -1;
+            }
+            
+            // 处理字符串
+            function processString(str) {
+                return str
+                    .replace(/\*/g, '')
+                    .replace(/<\/?u>/g, '')
+                    .replace(/<br\s*\/?>/gi, '\n')
+                    .trim();
+            }
+            
+            // 开始练习
+            function startExercise() {
+                const exerciseNum = parseInt(exerciseNumInput.value);
+                
+                if (isNaN(exerciseNum) || exerciseNum < 1 || exerciseNum > quizzes.length) {
+                    showError(`请输入1到${quizzes.length}之间的数字`);
+                    return;
+                }
+                
+                // 随机选择题目
+                exerciseQuizzes = [...quizzes];
+                shuffleArray(exerciseQuizzes);
+                exerciseQuizzes = exerciseQuizzes.slice(0, exerciseNum);
+                
+                currentQuizIndex = 0;
+                settingsSection.style.display = 'none';
+                quizContainer.style.display = 'block';
+                
+                displayQuiz();
+            }
+            
+            // 显示当前题目
+            function displayQuiz() {
+                if (currentQuizIndex >= exerciseQuizzes.length) {
+                    // 所有题目已完成
+                    quizContent.textContent = '恭喜！您已完成所有题目。';
+                    answerContent.style.display = 'none';
+                    showAnswerBtn.style.display = 'none';
+                    nextBtn.textContent = '完成';
+                    progressText.textContent = `完成度: ${exerciseQuizzes.length}/${exerciseQuizzes.length}`;
+                    return;
+                }
+                
+                const quiz = exerciseQuizzes[currentQuizIndex];
+                quizContent.textContent = quiz[0];
+                answerContent.textContent = quiz[1];
+                answerContent.style.display = 'none';
+                
+                progressText.textContent = `题目 ${currentQuizIndex + 1}/${exerciseQuizzes.length}`;
+                showAnswerBtn.style.display = 'inline-block';
+                nextBtn.textContent = '下一题';
+            }
+            
+            // 显示答案
+            function showAnswer() {
+                answerContent.style.display = 'block';
+            }
+            
+            // 下一题
+            function nextQuiz() {
+                if (currentQuizIndex >= exerciseQuizzes.length) {
+                    restartApp();
+                    return;
+                }
+                
+                currentQuizIndex++;
+                displayQuiz();
+            }
+            
+            // 重新开始
+            function restartApp() {
+                quizzes = [];
+                currentQuizIndex = 0;
+                exerciseQuizzes = [];
+                
+                settingsSection.style.display = 'none';
+                quizContainer.style.display = 'none';
+                fileInfo.textContent = '';
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
+                
+                fileInput.value = '';
+            }
+            
+            // 显示错误信息
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+            }
+            
+            // 显示成功信息
+            function showSuccess(message) {
+                successMessage.textContent = message;
+                successMessage.style.display = 'block';
+                errorMessage.style.display = 'none';
+            }
+            
+            // 随机打乱数组
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+        });
+    </script>
+</body>
+</html>
