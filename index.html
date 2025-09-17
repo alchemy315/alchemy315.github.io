@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markdown题目练习工具</title>
+    <title>Markdown问答测试系统 - 单题模式（按难度排序）</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
             color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
             padding: 20px;
             display: flex;
@@ -23,451 +24,531 @@
         }
         
         .container {
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            width: 90%;
             max-width: 800px;
+            width: 100%;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             padding: 30px;
-            margin: 20px auto;
+            position: relative;
+            overflow: hidden;
         }
         
         h1 {
             text-align: center;
+            margin-bottom: 25px;
             color: #2c3e50;
-            margin-bottom: 20px;
             font-size: 28px;
+            position: relative;
+            padding-bottom: 15px;
         }
         
-        .section {
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #2c3e50);
+            border-radius: 2px;
+        }
+        
+        .upload-section {
             margin-bottom: 25px;
             padding: 20px;
+            border: 2px dashed #ccc;
             border-radius: 10px;
-            background-color: #f8f9fa;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .upload-area {
-            border: 2px dashed #3498db;
-            padding: 30px;
             text-align: center;
-            cursor: pointer;
+            background-color: #f9f9f9;
             transition: all 0.3s;
-            border-radius: 8px;
         }
         
-        .upload-area:hover {
-            background-color: #e8f4ff;
-            border-color: #2980b9;
+        .upload-section:hover {
+            border-color: #3498db;
+            background-color: #edf7fd;
         }
         
-        .upload-icon {
-            font-size: 48px;
-            color: #3498db;
+        .upload-section p {
             margin-bottom: 15px;
+            color: #7f8c8d;
+            font-size: 16px;
         }
         
         .file-input {
             display: none;
         }
         
-        .btn {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
+        .file-label {
             display: inline-block;
-            margin: 10px 5px;
+            padding: 12px 24px;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
         }
         
-        .btn:hover {
-            background-color: #2980b9;
+        .file-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.4);
         }
         
-        .btn-primary {
-            background-color: #2ecc71;
+        .options-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
         
-        .btn-primary:hover {
-            background-color: #27ae60;
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
         }
         
-        .btn-secondary {
-            background-color: #e74c3c;
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
         }
         
-        .btn-secondary:hover {
-            background-color: #c0392b;
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
         }
         
-        .quiz-container {
-            display: none;
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background: linear-gradient(90deg, #3498db, #2980b9);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+        
+        .quiz-counter {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 18px;
+            background: linear-gradient(90deg, #3498db, #2c3e50);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .single-quiz-container {
+            margin-top: 20px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
         }
         
         .quiz-card {
-            background-color: white;
             padding: 25px;
+            border: 1px solid #e0e0e0;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .quiz-question {
+            font-weight: bold;
             margin-bottom: 20px;
-        }
-        
-        .quiz-card h3 {
             color: #2c3e50;
-            margin-bottom: 15px;
+            font-size: 20px;
+            line-height: 1.5;
+            flex-grow: 1;
         }
         
-        .quiz-content {
+        .quiz-answer {
+            display: none;
+            padding: 20px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-left: 5px solid #3498db;
+            border-radius: 8px;
             font-size: 18px;
             line-height: 1.6;
-            margin-bottom: 20px;
-            white-space: pre-wrap;
         }
         
-        .answer-content {
-            display: none;
-            font-size: 18px;
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #2ecc71;
+        .difficulty-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        
+        .difficulty-3 {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .difficulty-2 {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .difficulty-1 {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .show-answer-btn {
+            padding: 12px 25px;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            align-self: flex-start;
             margin-top: 15px;
-            white-space: pre-wrap;
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+        
+        .show-answer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.4);
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+        
+        .nav-btn {
+            padding: 12px 25px;
+            background: linear-gradient(90deg, #2c3e50, #34495e);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(44, 62, 80, 0.3);
+        }
+        
+        .nav-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(44, 62, 80, 0.4);
+        }
+        
+        .nav-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background-color: #ecf0f1;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
         }
         
         .progress {
-            text-align: center;
-            font-size: 18px;
-            margin-bottom: 20px;
-            color: #7f8c8d;
-        }
-        
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-        
-        .file-info {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #7f8c8d;
-        }
-        
-        .error {
-            color: #e74c3c;
-            text-align: center;
-            margin: 15px 0;
-            font-weight: bold;
-        }
-        
-        .success {
-            color: #2ecc71;
-            text-align: center;
-            margin: 15px 0;
-            font-weight: bold;
-        }
-        
-        input[type="number"] {
-            padding: 10px;
-            border: 1px solid #ddd;
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2980b9);
             border-radius: 6px;
-            width: 100px;
-            font-size: 16px;
-            text-align: center;
+            width: 0%;
+            transition: width 0.5s ease;
         }
         
-        .settings {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
+        .no-file-message {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            font-size: 18px;
+        }
+        
+        .file-name {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #2c3e50;
+            background-color: #f1f8ff;
+            padding: 10px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        
+        .current-quiz {
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .options-section {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .nav-btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Markdown题目练习工具</h1>
+        <h1>Markdown问答测试系统 - 单题模式（按难度排序）</h1>
         
-        <div class="section" id="upload-section">
-            <div class="upload-area" id="drop-area">
-                <div class="upload-icon">📁</div>
-                <p>点击或拖拽Markdown文件到此处上传</p>
-                <input type="file" id="file-input" class="file-input" accept=".md">
-                <button class="btn" id="browse-btn">选择文件</button>
-            </div>
-            <div id="file-info" class="file-info"></div>
+        <div class="upload-section">
+            <p>请上传Markdown格式的问答文件</p>
+            <input type="file" id="file-input" class="file-input" accept=".md">
+            <label for="file-input" class="file-label">选择文件</label>
+            <div id="file-name" class="file-name"></div>
         </div>
         
-        <div class="section" id="settings-section" style="display: none;">
-            <h2>练习设置</h2>
-            <div class="settings">
-                <label for="exercise-num">题目数量:</label>
-                <input type="number" id="exercise-num" min="1" value="10">
-                <button class="btn btn-primary" id="start-btn">开始练习</button>
+        <div class="options-section">
+            <div>
+                <span>随机顺序: </span>
+                <label class="switch">
+                    <input type="checkbox" id="random-toggle">
+                    <span class="slider"></span>
+                </label>
             </div>
-            <p class="file-info" id="quiz-count-info"></p>
+            <div id="quiz-count" class="quiz-counter">总题数: 0</div>
         </div>
         
-        <div id="error-message" class="error" style="display: none;"></div>
-        <div id="success-message" class="success" style="display: none;"></div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
         
-        <div class="quiz-container" id="quiz-container">
-            <div class="progress" id="progress">题目 1/10</div>
-            
-            <div class="quiz-card">
-                <h3>问题</h3>
-                <div class="quiz-content" id="quiz-content"></div>
-                
-                <h3>答案</h3>
-                <div class="answer-content" id="answer-content"></div>
-                
-                <div class="controls">
-                    <button class="btn" id="show-answer-btn">显示答案</button>
-                    <button class="btn btn-primary" id="next-btn">下一题</button>
-                </div>
-            </div>
-            
-            <div style="text-align: center; margin-top: 20px;">
-                <button class="btn btn-secondary" id="restart-btn">重新开始</button>
-            </div>
+        <div id="current-quiz" class="current-quiz">当前题目: 0/0</div>
+        
+        <div id="single-quiz-container" class="single-quiz-container">
+            <div class="no-file-message">请上传Markdown文件开始测试</div>
+        </div>
+        
+        <div class="navigation">
+            <button id="prev-btn" class="nav-btn" disabled>上一题</button>
+            <button id="show-answer-btn" class="show-answer-btn">显示答案</button>
+            <button id="next-btn" class="nav-btn" disabled>下一题</button>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 获取DOM元素
             const fileInput = document.getElementById('file-input');
-            const browseBtn = document.getElementById('browse-btn');
-            const dropArea = document.getElementById('drop-area');
-            const fileInfo = document.getElementById('file-info');
-            const settingsSection = document.getElementById('settings-section');
-            const exerciseNumInput = document.getElementById('exercise-num');
-            const startBtn = document.getElementById('start-btn');
-            const quizContainer = document.getElementById('quiz-container');
-            const quizContent = document.getElementById('quiz-content');
-            const answerContent = document.getElementById('answer-content');
-            const showAnswerBtn = document.getElementById('show-answer-btn');
+            const fileName = document.getElementById('file-name');
+            const randomToggle = document.getElementById('random-toggle');
+            const quizCount = document.getElementById('quiz-count');
+            const progress = document.getElementById('progress');
+            const currentQuiz = document.getElementById('current-quiz');
+            const singleQuizContainer = document.getElementById('single-quiz-container');
+            const prevBtn = document.getElementById('prev-btn');
             const nextBtn = document.getElementById('next-btn');
-            const progressText = document.getElementById('progress');
-            const restartBtn = document.getElementById('restart-btn');
-            const errorMessage = document.getElementById('error-message');
-            const successMessage = document.getElementById('success-message');
-            const quizCountInfo = document.getElementById('quiz-count-info');
+            const showAnswerBtn = document.getElementById('show-answer-btn');
             
-            // 全局变量
             let quizzes = [];
-            let currentQuizIndex = 0;
-            let exerciseQuizzes = [];
+            let currentQuizzes = [];
+            let currentIndex = 0;
             
-            // 事件监听器
-            browseBtn.addEventListener('click', () => fileInput.click());
-            
-            fileInput.addEventListener('change', handleFileSelect);
-            
-            dropArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dropArea.style.backgroundColor = '#e8f4ff';
-            });
-            
-            dropArea.addEventListener('dragleave', () => {
-                dropArea.style.backgroundColor = '';
-            });
-            
-            dropArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                dropArea.style.backgroundColor = '';
-                
-                if (e.dataTransfer.files.length) {
-                    fileInput.files = e.dataTransfer.files;
-                    handleFileSelect(e);
-                }
-            });
-            
-            startBtn.addEventListener('click', startExercise);
-            showAnswerBtn.addEventListener('click', showAnswer);
-            nextBtn.addEventListener('click', nextQuiz);
-            restartBtn.addEventListener('click', restartApp);
-            
-            // 处理文件选择
-            function handleFileSelect(e) {
+            // 文件上传处理
+            fileInput.addEventListener('change', function(e) {
                 const file = e.target.files[0];
-                if (!file || !file.name.endsWith('.md')) {
-                    showError('请选择Markdown文件（.md后缀）');
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const content = e.target.result;
-                        quizzes = parseMarkdownContent(content);
-                        
-                        if (quizzes.length === 0) {
-                            showError('文件中没有找到有效的题目和答案');
-                            return;
-                        }
-                        
-                        // 显示成功信息和设置区域
-                        showSuccess(`成功加载 ${quizzes.length} 道题目`);
-                        fileInfo.textContent = `已加载文件: ${file.name} (${quizzes.length} 道题目)`;
-                        settingsSection.style.display = 'block';
-                        
-                        // 设置题目数量最大值
-                        exerciseNumInput.max = quizzes.length;
-                        exerciseNumInput.value = Math.min(10, quizzes.length);
-                        quizCountInfo.textContent = `该文件共有 ${quizzes.length} 道题目，最多可选择 ${quizzes.length} 道题`;
-                        
-                    } catch (err) {
-                        console.error(err);
-                        showError('解析文件时出错: ' + err.message);
-                    }
-                };
-                
-                reader.readAsText(file);
-            }
-            
-            // 解析Markdown内容
-            function parseMarkdownContent(content) {
-                const lines = content.split('\n');
-                const result = [];
-                
-                for (const line of lines) {
-                    if (!hasChinese(line)) continue;
+                if (file) {
+                    fileName.textContent = `已选择: ${file.name}`;
                     
-                    const quiz = parseQuizLine(line);
-                    if (quiz !== -1) {
-                        result.push(quiz);
-                    }
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const content = e.target.result;
+                        processFileContent(content);
+                    };
+                    reader.readAsText(file);
                 }
+            });
+            
+            // 处理文件内容
+            function processFileContent(content) {
+                const lines = content.split('\n');
+                quizzes = [];
                 
-                return result;
+                lines.forEach(line => {
+                    if (hasChinese(line)) {
+                        const quiz = parseQuizLine(line);
+                        if (quiz) {
+                            quizzes.push(quiz);
+                        }
+                    }
+                });
+                
+                quizCount.textContent = `总题数: ${quizzes.length}`;
+                updateQuizzes();
             }
             
-            // 判断是否包含中文
+            // 检查是否包含中文
             function hasChinese(str) {
                 return /[\u4e00-\u9fff]/.test(str);
             }
             
-            // 解析题目行
+            // 解析问答行
             function parseQuizLine(line) {
-                // 匹配Markdown表格行格式: | 问题 | 答案 |
-                const pattern = /\|\s*(.*?)\s*\|\s*(.*?)\s*\|/;
-                const match = line.match(pattern);
+                // 简化处理：假设格式为 | 问题 | 答案 |
+                const parts = line.split('|').filter(part => part.trim() !== '');
                 
-                if (match && match.length >= 3) {
-                    return [
-                        processString(match[1]),
-                        processString(match[2])
-                    ];
+                if (parts.length >= 2) {
+                    // 清理内容
+                    const question = cleanContent(parts[0].trim());
+                    let answer = cleanContent(parts[1].trim());
+                    
+                    // 检测难度级别
+                    let level = 1; // 默认难度为1
+                    const levelMatch = answer.match(/\/-(\d)-\//);
+                    if (levelMatch) {
+                        level = parseInt(levelMatch[1]);
+                        // 移除难度标记
+                        answer = answer.replace(/\/-\d-\//g, '');
+                    }
+                    
+                    return { question, answer, level };
                 }
                 
-                return -1;
+                return null;
             }
             
-            // 处理字符串
-            function processString(str) {
-                return str
-                    .replace(/\*/g, '')
-                    .replace(/<\/?u>/g, '')
-                    .replace(/<br\s*\/?>/gi, '\n')
-                    .trim();
+            // 清理内容
+            function cleanContent(str) {
+                return str.replace(/\*\*/g, '')
+                          .replace(/<br\s*\/?>/gi, '\n')
+                          .replace(/<u>/gi, '')
+                          .replace(/<\/u>/gi, '');
             }
             
-            // 开始练习
-            function startExercise() {
-                const exerciseNum = parseInt(exerciseNumInput.value);
+            // 按难度排序题目
+            function sortByPoint(quizs, ran = true) {
+                const quizs_1 = [];
+                const quizs_2 = [];
+                const quizs_3 = [];
                 
-                if (isNaN(exerciseNum) || exerciseNum < 1 || exerciseNum > quizzes.length) {
-                    showError(`请输入1到${quizzes.length}之间的数字`);
+                for (const q of quizs) {
+                    if (q.level === 3) {
+                        quizs_3.push(q);
+                    } else if (q.level === 2) {
+                        quizs_2.push(q);
+                    } else {
+                        quizs_1.push(q);
+                    }
+                }
+                
+                if (ran) {
+                    shuffleArray(quizs_1);
+                    shuffleArray(quizs_2);
+                    shuffleArray(quizs_3);
+                }
+                
+                // 难度3在前，然后是难度2，最后是难度1
+                return [...quizs_3, ...quizs_2, ...quizs_1];
+            }
+            
+            // 更新题目显示
+            function updateQuizzes() {
+                if (quizzes.length === 0) {
+                    singleQuizContainer.innerHTML = '<div class="no-file-message">没有找到有效的题目</div>';
+                    prevBtn.disabled = true;
+                    nextBtn.disabled = true;
+                    showAnswerBtn.disabled = true;
                     return;
                 }
                 
-                // 随机选择题目
-                exerciseQuizzes = [...quizzes];
-                shuffleArray(exerciseQuizzes);
-                exerciseQuizzes = exerciseQuizzes.slice(0, exerciseNum);
+                // 根据难度排序
+                currentQuizzes = sortByPoint(quizzes, randomToggle.checked);
                 
-                currentQuizIndex = 0;
-                settingsSection.style.display = 'none';
-                quizContainer.style.display = 'block';
+                // 重置索引
+                currentIndex = 0;
+                showQuiz(currentIndex);
                 
-                displayQuiz();
+                // 启用按钮
+                prevBtn.disabled = false;
+                nextBtn.disabled = false;
+                showAnswerBtn.disabled = false;
             }
             
-            // 显示当前题目
-            function displayQuiz() {
-                if (currentQuizIndex >= exerciseQuizzes.length) {
-                    // 所有题目已完成
-                    quizContent.textContent = '恭喜！您已完成所有题目。';
-                    answerContent.style.display = 'none';
-                    showAnswerBtn.style.display = 'none';
-                    nextBtn.textContent = '完成';
-                    progressText.textContent = `完成度: ${exerciseQuizzes.length}/${exerciseQuizzes.length}`;
-                    return;
-                }
+            // 显示指定索引的题目
+            function showQuiz(index) {
+                const quiz = currentQuizzes[index];
+                const difficultyClass = `difficulty-${quiz.level}`;
+                const difficultyText = `难度${quiz.level}`;
                 
-                const quiz = exerciseQuizzes[currentQuizIndex];
-                quizContent.textContent = quiz[0];
-                answerContent.textContent = quiz[1];
-                answerContent.style.display = 'none';
+                singleQuizContainer.innerHTML = `
+                    <div class="quiz-card">
+                        <div class="quiz-question">
+                            ${quiz.question}
+                            <span class="difficulty-badge ${difficultyClass}">${difficultyText}</span>
+                        </div>
+                        <div class="quiz-answer" id="current-answer">${quiz.answer}</div>
+                    </div>
+                `;
                 
-                progressText.textContent = `题目 ${currentQuizIndex + 1}/${exerciseQuizzes.length}`;
-                showAnswerBtn.style.display = 'inline-block';
-                nextBtn.textContent = '下一题';
-            }
-            
-            // 显示答案
-            function showAnswer() {
-                answerContent.style.display = 'block';
-            }
-            
-            // 下一题
-            function nextQuiz() {
-                if (currentQuizIndex >= exerciseQuizzes.length) {
-                    restartApp();
-                    return;
-                }
+                // 更新当前题目指示器
+                currentQuiz.textContent = `当前题目: ${index + 1}/${currentQuizzes.length}`;
                 
-                currentQuizIndex++;
-                displayQuiz();
-            }
-            
-            // 重新开始
-            function restartApp() {
-                quizzes = [];
-                currentQuizIndex = 0;
-                exerciseQuizzes = [];
+                // 更新进度条
+                progress.style.width = `${((index + 1) / currentQuizzes.length) * 100}%`;
                 
-                settingsSection.style.display = 'none';
-                quizContainer.style.display = 'none';
-                fileInfo.textContent = '';
-                errorMessage.style.display = 'none';
-                successMessage.style.display = 'none';
+                // 更新按钮状态
+                prevBtn.disabled = index === 0;
+                nextBtn.disabled = index === currentQuizzes.length - 1;
                 
-                fileInput.value = '';
+                // 重置显示答案按钮
+                showAnswerBtn.textContent = '显示答案';
+                document.getElementById('current-answer').style.display = 'none';
             }
             
-            // 显示错误信息
-            function showError(message) {
-                errorMessage.textContent = message;
-                errorMessage.style.display = 'block';
-                successMessage.style.display = 'none';
-            }
-            
-            // 显示成功信息
-            function showSuccess(message) {
-                successMessage.textContent = message;
-                successMessage.style.display = 'block';
-                errorMessage.style.display = 'none';
-            }
-            
-            // 随机打乱数组
+            // 打乱数组顺序
             function shuffleArray(array) {
                 for (let i = array.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
@@ -475,6 +556,42 @@
                 }
                 return array;
             }
+            
+            // 随机选项变化时更新题目
+            randomToggle.addEventListener('change', function() {
+                if (quizzes.length > 0) {
+                    updateQuizzes();
+                }
+            });
+            
+            // 上一题按钮事件
+            prevBtn.addEventListener('click', function() {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    showQuiz(currentIndex);
+                }
+            });
+            
+            // 下一题按钮事件
+            nextBtn.addEventListener('click', function() {
+                if (currentIndex < currentQuizzes.length - 1) {
+                    currentIndex++;
+                    showQuiz(currentIndex);
+                }
+            });
+            
+            // 显示答案按钮事件
+            showAnswerBtn.addEventListener('click', function() {
+                const answerElement = document.getElementById('current-answer');
+                
+                if (answerElement.style.display === 'block') {
+                    answerElement.style.display = 'none';
+                    this.textContent = '显示答案';
+                } else {
+                    answerElement.style.display = 'block';
+                    this.textContent = '隐藏答案';
+                }
+            });
         });
     </script>
 </body>
