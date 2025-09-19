@@ -463,9 +463,9 @@
             // 清理内容
             function cleanContent(str) {
                 return str.replace(/\*\*/g, '')
-                          .replace(/<br\s*\/?>/gi, '\n')
-                          .replace(/<u>/gi, '')
-                          .replace(/<\/u>/gi, '');
+                        .replace(/<br\s*\/?>/gi, '<br>') // 改为 <br> 标签
+                        .replace(/<u>/gi, '')
+                        .replace(/<\/u>/gi, '');
             }
             
             // 按难度排序题目
@@ -596,3 +596,4 @@
     </script>
 </body>
 </html>
+
