@@ -162,6 +162,57 @@
             -webkit-text-fill-color: transparent;
         }
         
+        .seed-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .seed-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 120px;
+        }
+        
+        .jump-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .jump-difficulty {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100px;
+        }
+        
+        .jump-number {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 80px;
+        }
+        
+        .action-btn {
+            padding: 8px 15px;
+            background: linear-gradient(90deg, #2c3e50, #34495e);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .action-btn:hover {
+            background: linear-gradient(90deg, #34495e, #2c3e50);
+        }
+        
         .single-quiz-container {
             margin-top: 20px;
             min-height: 300px;
@@ -274,21 +325,66 @@
             box-shadow: none;
         }
         
-        .progress-bar {
-            height: 12px;
-            background-color: #ecf0f1;
-            border-radius: 6px;
+        /* 多进度条样式 */
+        .multi-progress {
+            display: flex;
+            gap: 5px;
             margin-bottom: 20px;
+            height: 12px;
+            border-radius: 6px;
             overflow: hidden;
             box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
         }
         
-        .progress {
+        .progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, #3498db, #2980b9);
             border-radius: 6px;
             width: 0%;
             transition: width 0.5s ease;
+        }
+        
+        .progress-1 {
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+        }
+        
+        .progress-2 {
+            background: linear-gradient(90deg, #f39c12, #f1c40f);
+        }
+        
+        .progress-3 {
+            background: linear-gradient(90deg, #e74c3c, #e67e22);
+        }
+        
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        .progress-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .progress-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        .progress-1-color {
+            background-color: #27ae60;
+        }
+        
+        .progress-2-color {
+            background-color: #f39c12;
+        }
+        
+        .progress-3-color {
+            background-color: #e74c3c;
         }
         
         .no-file-message {
@@ -316,6 +412,13 @@
             font-size: 16px;
         }
         
+        .seed-info {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
         @media (max-width: 600px) {
             .container {
                 padding: 20px;
@@ -338,6 +441,20 @@
             .nav-btn {
                 width: 100%;
             }
+            
+            .seed-section, .jump-section {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .seed-input, .jump-difficulty, .jump-number {
+                width: 100%;
+            }
+            
+            .progress-labels {
+                flex-direction: column;
+                gap: 5px;
+            }
         }
     </style>
 </head>
@@ -356,15 +473,53 @@
             <div>
                 <span>随机顺序: </span>
                 <label class="switch">
-                    <input type="checkbox" id="random-toggle">
+                    <input type="checkbox" id="random-toggle" checked>
                     <span class="slider"></span>
                 </label>
             </div>
             <div id="quiz-count" class="quiz-counter">总题数: 0</div>
         </div>
         
-        <div class="progress-bar">
-            <div class="progress" id="progress"></div>
+        <div class="seed-section">
+            <span>随机种子:</span>
+            <input type="text" id="seed-input" class="seed-input" placeholder="输入种子或留空">
+            <button id="apply-seed-btn" class="action-btn">应用种子</button>
+        </div>
+        
+        <div class="jump-section">
+            <span>跳转至:</span>
+            <select id="jump-difficulty" class="jump-difficulty">
+                <option value="3">难度3</option>
+                <option value="2">难度2</option>
+                <option value="1">难度1</option>
+            </select>
+            <span>第</span>
+            <input type="number" id="jump-number" class="jump-number" placeholder="1" min="1">
+            <span>题</span>
+            <button id="jump-btn" class="action-btn">跳转</button>
+        </div>
+        
+        <div id="seed-info" class="seed-info">当前种子: 无</div>
+        
+        <!-- 多进度条 -->
+        <div class="progress-labels">
+            <div class="progress-label">
+                <div class="progress-color progress-1-color"></div>
+                <span id="progress-label-1">难度1 (0)</span>
+            </div>
+            <div class="progress-label">
+                <div class="progress-color progress-2-color"></div>
+                <span id="progress-label-2">难度2 (0)</span>
+            </div>
+            <div class="progress-label">
+                <div class="progress-color progress-3-color"></div>
+                <span id="progress-label-3">难度3 (0)</span>
+            </div>
+        </div>
+        <div class="multi-progress">
+            <div class="progress-bar progress-1" id="progress-1"></div>
+            <div class="progress-bar progress-2" id="progress-2"></div>
+            <div class="progress-bar progress-3" id="progress-3"></div>
         </div>
         
         <div id="current-quiz" class="current-quiz">当前题目: 0/0</div>
@@ -386,16 +541,46 @@
             const fileName = document.getElementById('file-name');
             const randomToggle = document.getElementById('random-toggle');
             const quizCount = document.getElementById('quiz-count');
-            const progress = document.getElementById('progress');
+            const progress1 = document.getElementById('progress-1');
+            const progress2 = document.getElementById('progress-2');
+            const progress3 = document.getElementById('progress-3');
+            const progressLabel1 = document.getElementById('progress-label-1');
+            const progressLabel2 = document.getElementById('progress-label-2');
+            const progressLabel3 = document.getElementById('progress-label-3');
             const currentQuiz = document.getElementById('current-quiz');
             const singleQuizContainer = document.getElementById('single-quiz-container');
             const prevBtn = document.getElementById('prev-btn');
             const nextBtn = document.getElementById('next-btn');
             const showAnswerBtn = document.getElementById('show-answer-btn');
+            const seedInput = document.getElementById('seed-input');
+            const applySeedBtn = document.getElementById('apply-seed-btn');
+            const jumpDifficulty = document.getElementById('jump-difficulty');
+            const jumpNumber = document.getElementById('jump-number');
+            const jumpBtn = document.getElementById('jump-btn');
+            const seedInfo = document.getElementById('seed-info');
             
             let quizzes = [];
             let currentQuizzes = [];
             let currentIndex = 0;
+            let currentSeed = null;
+            let randomGenerator = null;
+            let levelCounts = {1: 0, 2: 0, 3: 0};
+            let difficultyRanges = {1: {start: 0, end: 0}, 2: {start: 0, end: 0}, 3: {start: 0, end: 0}};
+            
+            // 生成随机种子（四位字母数字）
+            function generateRandomSeed() {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let result = '';
+                for (let i = 0; i < 4; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return result;
+            }
+            
+            // 初始化时设置随机种子
+            const initialSeed = generateRandomSeed();
+            seedInput.value = initialSeed;
+            applySeedBtn.click();
             
             // 文件上传处理
             fileInput.addEventListener('change', function(e) {
@@ -416,18 +601,30 @@
             function processFileContent(content) {
                 const lines = content.split('\n');
                 quizzes = [];
+                levelCounts = {1: 0, 2: 0, 3: 0};
                 
                 lines.forEach(line => {
                     if (hasChinese(line)) {
                         const quiz = parseQuizLine(line);
                         if (quiz) {
                             quizzes.push(quiz);
+                            levelCounts[quiz.level]++;
                         }
                     }
                 });
                 
+                // 更新进度条标签
+                updateProgressLabels();
+                
                 quizCount.textContent = `总题数: ${quizzes.length}`;
                 updateQuizzes();
+            }
+            
+            // 更新进度条标签
+            function updateProgressLabels() {
+                progressLabel1.textContent = `难度1 (${levelCounts[1]})`;
+                progressLabel2.textContent = `难度2 (${levelCounts[2]})`;
+                progressLabel3.textContent = `难度3 (${levelCounts[3]})`;
             }
             
             // 检查是否包含中文
@@ -468,6 +665,14 @@
                         .replace(/<\/u>/gi, '');
             }
             
+            // 随机数生成器（基于种子）
+            function createRandomGenerator(seed) {
+                return function() {
+                    seed = (seed * 9301 + 49297) % 233280;
+                    return seed / 233280;
+                };
+            }
+            
             // 按难度排序题目
             function sortByPoint(quizs, ran = true) {
                 const quizs_1 = [];
@@ -485,9 +690,12 @@
                 }
                 
                 if (ran) {
-                    shuffleArray(quizs_1);
-                    shuffleArray(quizs_2);
-                    shuffleArray(quizs_3);
+                    // 使用自定义随机数生成器或Math.random
+                    const randomFn = randomGenerator || Math.random;
+                    
+                    shuffleArray(quizs_1, randomFn);
+                    shuffleArray(quizs_2, randomFn);
+                    shuffleArray(quizs_3, randomFn);
                 }
                 
                 // 难度3在前，然后是难度2，最后是难度1
@@ -507,6 +715,9 @@
                 // 根据难度排序
                 currentQuizzes = sortByPoint(quizzes, randomToggle.checked);
                 
+                // 计算每个难度范围的起始和结束索引
+                calculateDifficultyRanges();
+                
                 // 重置索引
                 currentIndex = 0;
                 showQuiz(currentIndex);
@@ -515,6 +726,45 @@
                 prevBtn.disabled = false;
                 nextBtn.disabled = false;
                 showAnswerBtn.disabled = false;
+                
+                // 更新跳转输入框的最大值
+                updateJumpNumberMax();
+            }
+            
+            // 计算每个难度范围的起始和结束索引
+            function calculateDifficultyRanges() {
+                let count3 = 0, count2 = 0, count1 = 0;
+                
+                for (let i = 0; i < currentQuizzes.length; i++) {
+                    const quiz = currentQuizzes[i];
+                    if (quiz.level === 3) count3++;
+                    else if (quiz.level === 2) count2++;
+                    else if (quiz.level === 1) count1++;
+                }
+                
+                difficultyRanges[3] = {
+                    start: 0,
+                    end: count3 - 1
+                };
+                
+                difficultyRanges[2] = {
+                    start: count3,
+                    end: count3 + count2 - 1
+                };
+                
+                difficultyRanges[1] = {
+                    start: count3 + count2,
+                    end: count3 + count2 + count1 - 1
+                };
+            }
+            
+            // 更新跳转题号输入框的最大值
+            function updateJumpNumberMax() {
+                const selectedDifficulty = parseInt(jumpDifficulty.value);
+                const range = difficultyRanges[selectedDifficulty];
+                const count = range.end - range.start + 1;
+                jumpNumber.max = count;
+                jumpNumber.placeholder = `1-${count}`;
             }
             
             // 显示指定索引的题目
@@ -536,8 +786,8 @@
                 // 更新当前题目指示器
                 currentQuiz.textContent = `当前题目: ${index + 1}/${currentQuizzes.length}`;
                 
-                // 更新进度条
-                progress.style.width = `${((index + 1) / currentQuizzes.length) * 100}%`;
+                // 更新多进度条
+                updateMultiProgress(index);
                 
                 // 更新按钮状态
                 prevBtn.disabled = index === 0;
@@ -546,16 +796,121 @@
                 // 重置显示答案按钮
                 showAnswerBtn.textContent = '显示答案';
                 document.getElementById('current-answer').style.display = 'none';
+                
+                // 更新跳转部分以反映当前题目
+                updateJumpToCurrent(index);
             }
             
-            // 打乱数组顺序
-            function shuffleArray(array) {
+            // 更新跳转部分以反映当前题目
+            function updateJumpToCurrent(index) {
+                const quiz = currentQuizzes[index];
+                const difficulty = quiz.level;
+                const range = difficultyRanges[difficulty];
+                const numberInDifficulty = index - range.start + 1;
+                
+                jumpDifficulty.value = difficulty;
+                jumpNumber.value = numberInDifficulty;
+                updateJumpNumberMax();
+            }
+            
+            // 更新多进度条
+            function updateMultiProgress(currentIndex) {
+                // 计算每个难度在当前索引前的题目数
+                let count1 = 0, count2 = 0, count3 = 0;
+                
+                for (let i = 0; i <= currentIndex; i++) {
+                    const quiz = currentQuizzes[i];
+                    if (quiz.level === 1) count1++;
+                    else if (quiz.level === 2) count2++;
+                    else if (quiz.level === 3) count3++;
+                }
+                
+                // 计算每个难度的完成百分比
+                const percent1 = levelCounts[1] > 0 ? Math.round((count1 / levelCounts[1]) * 100) : 0;
+                const percent2 = levelCounts[2] > 0 ? Math.round((count2 / levelCounts[2]) * 100) : 0;
+                const percent3 = levelCounts[3] > 0 ? Math.round((count3 / levelCounts[3]) * 100) : 0;
+                
+                // 更新进度条宽度
+                progress1.style.width = `${percent1}%`;
+                progress2.style.width = `${percent2}%`;
+                progress3.style.width = `${percent3}%`;
+            }
+            
+            // 打乱数组顺序（使用指定的随机函数）
+            function shuffleArray(array, randomFn = Math.random) {
                 for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
+                    const j = Math.floor(randomFn() * (i + 1));
                     [array[i], array[j]] = [array[j], array[i]];
                 }
                 return array;
             }
+            
+            // 应用随机种子
+            applySeedBtn.addEventListener('click', function() {
+                const seedValue = seedInput.value.trim();
+                
+                if (seedValue === '') {
+                    // 清空种子，使用系统随机
+                    currentSeed = null;
+                    randomGenerator = null;
+                    seedInfo.textContent = '当前种子: 无 (使用系统随机)';
+                } else {
+                    // 使用输入的种子
+                    currentSeed = parseInt(seedValue) || seedValue.hashCode(); // 如果输入不是数字，使用字符串的哈希值
+                    randomGenerator = createRandomGenerator(currentSeed);
+                    seedInfo.textContent = `当前种子: ${currentSeed}`;
+                }
+                
+                // 重新生成题目顺序
+                if (quizzes.length > 0) {
+                    updateQuizzes();
+                }
+            });
+            
+            // 为字符串添加hashCode方法（用于将字符串转换为数字种子）
+            String.prototype.hashCode = function() {
+                let hash = 0;
+                for (let i = 0; i < this.length; i++) {
+                    const char = this.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash; // 转换为32位整数
+                }
+                return hash;
+            };
+            
+            // 跳转难度变化时更新跳转题号的最大值
+            jumpDifficulty.addEventListener('change', function() {
+                updateJumpNumberMax();
+            });
+            
+            // 跳转到指定难度和题号
+            jumpBtn.addEventListener('click', function() {
+                const targetDifficulty = parseInt(jumpDifficulty.value);
+                const targetNumber = parseInt(jumpNumber.value);
+                
+                if (isNaN(targetNumber) || targetNumber < 1) {
+                    alert('请输入有效的题号');
+                    return;
+                }
+                
+                const range = difficultyRanges[targetDifficulty];
+                const count = range.end - range.start + 1;
+                
+                if (targetNumber > count) {
+                    alert(`该难度只有 ${count} 道题目`);
+                    return;
+                }
+                
+                // 计算总索引
+                const targetIndex = range.start + targetNumber - 1;
+                
+                if (targetIndex >= 0 && targetIndex < currentQuizzes.length) {
+                    currentIndex = targetIndex;
+                    showQuiz(currentIndex);
+                } else {
+                    alert('跳转失败，请检查输入');
+                }
+            });
             
             // 随机选项变化时更新题目
             randomToggle.addEventListener('change', function() {
@@ -596,4 +951,3 @@
     </script>
 </body>
 </html>
-
