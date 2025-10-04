@@ -657,12 +657,16 @@
                 return null;
             }
             
-            // 清理内容
+            // 清理内容 - 修改此函数以保留粗体和下划线格式
             function cleanContent(str) {
-                return str.replace(/\*\*/g, '')
-                        .replace(/<br\s*\/?>/gi, '<br>') // 改为 <br> 标签
-                        .replace(/<u>/gi, '')
-                        .replace(/<\/u>/gi, '');
+                // 将 **文本** 转换为 <strong>文本</strong>
+                str = str.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                
+                // 保留 <u> 和 </u> 标签
+                // 将 <br /> 或 <br> 替换为 <br> 标签
+                str = str.replace(/<br\s*\/?>/gi, '<br>');
+                
+                return str;
             }
             
             // 随机数生成器（基于种子）
